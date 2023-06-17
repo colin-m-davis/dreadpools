@@ -1,0 +1,6 @@
+.vscode
+bazel-bin
+bazel-dreadpools
+bazel-out
+bazel-testlogs
+.bazelrc
