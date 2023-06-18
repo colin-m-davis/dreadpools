@@ -29,7 +29,6 @@ public:
     ThreadPool& operator=(const ThreadPool&) = delete;
 
     void start();
-
     void join();
 
     template <typename F, typename ... Args>
@@ -61,10 +60,7 @@ private:
 
 class ThreadWorker {
 public:
-    explicit ThreadWorker(ThreadPool& p) :
-        _pool(p),
-        _stop_token(p._stop_source.get_token()
-    ) {}
+    explicit ThreadWorker(ThreadPool& p);
     void operator()();
 
 private:

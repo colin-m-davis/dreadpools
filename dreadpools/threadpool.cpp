@@ -1,6 +1,5 @@
 #include "threadpool.hpp"
 
-
 namespace dreadpools {
 
 void ThreadPool::start() {
@@ -9,7 +8,6 @@ void ThreadPool::start() {
     }
 }
 
-// assures all tasks are completed before joining threads
 void ThreadPool::join() {
     // adds a dummy task to end of queue
     auto fut = submit([]{});
@@ -33,6 +31,10 @@ ThreadPool::~ThreadPool() {
     _cv.notify_all();
 }
 
+ThreadWorker::ThreadWorker(ThreadPool& p) :
+    _pool(p),
+    _stop_token(p._stop_source.get_token())
+{}
 
 void ThreadWorker::operator()() {
     while (!_stop_token.stop_requested()) {
