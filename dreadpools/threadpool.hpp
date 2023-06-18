@@ -22,7 +22,7 @@ class ThreadPool {
 public:
     explicit ThreadPool(
         // std::thread::hardware_concurrency can return 0
-        const unsigned int count_threads = std::max(1u, std::thread::hardware_concurrency()) - 1u
+        const unsigned int count_threads = std::max(2u, std::thread::hardware_concurrency()) - 1u
     ) : threads(count_threads) {};
 
     ThreadPool(const ThreadPool&) = delete;

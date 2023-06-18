@@ -1,7 +1,7 @@
 cc_test(
-  name = "hello_test",
+  name = "test",
   size = "small",
-  srcs = ["hello_test.cc"],
+  srcs = ["test_threadpool.cc"],
   deps = [
     "//dreadpools:dreadpools",
     "@com_google_googletest//:gtest_main"
