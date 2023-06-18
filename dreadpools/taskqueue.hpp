@@ -20,8 +20,8 @@ public:
         return _queue.size();
     }
 
-    template <typename ... Args>
-    void enqueue(Args&& ... args) {
+    template <typename... Args>
+    void enqueue(Args&&... args) {
         std::lock_guard lk(_mutex);
         _queue.emplace(std::forward<T>(args)...);
     }

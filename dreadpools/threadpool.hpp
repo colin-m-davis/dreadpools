@@ -31,7 +31,7 @@ public:
     void start();
     void join();
 
-    template <typename F, typename ... Args>
+    template <typename F, typename... Args>
     auto submit(F&& f, Args&&... args) -> std::future<decltype(f(args...))> {
         typedef decltype(f(args...)) rt;
         std::function<rt()> func = std::bind(std::forward<F>(f), std::forward<Args>(args)...);

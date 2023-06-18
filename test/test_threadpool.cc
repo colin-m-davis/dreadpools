@@ -37,6 +37,38 @@ TEST(HelloTest, DefaultCtr) {
     EXPECT_EQ(in_string, out_string);
 }
 
+TEST(HelloTest, Lambda) {
+    dreadpools::ThreadPool pool(4);
+    pool.start();
+
+    auto expected = 2;
+    auto fut = pool.submit(
+        [](const int a, const int b) {return std::max(a, b); },
+        1, 2
+    );
+    auto result = fut.get();
+    
+    EXPECT_EQ(expected, result);
+}
+
+TEST(HelloTest, Reduce) {
+    dreadpools::ThreadPool pool(4);
+    pool.start();
+
+    std::vector<int> in_vec(2048);
+    std::iota(in_vec.begin(), in_vec.end(), 0);
+    std::vector<int> out_vec;
+    auto expected = std::reduce(in_vec.cbegin(), in_vec.cend());
+    auto fut = pool.submit(
+        std::reduce<decltype(in_vec.cbegin())>,
+        in_vec.cbegin(),
+        in_vec.cend()
+    );
+    auto result = fut.get();
+    
+    EXPECT_EQ(expected, result);
+}
+
 TEST(HelloTest, Overload) {
     dreadpools::ThreadPool pool(4);
     pool.start();
@@ -53,24 +85,6 @@ TEST(HelloTest, Overload) {
     }
 
     EXPECT_EQ(in_vec, out_vec);
-}
-
-TEST(HelloTest, Reduce) {
-    dreadpools::ThreadPool pool(4);
-    pool.start();
-
-    std::vector<int> in_vec(2048);
-    std::iota(in_vec.begin(), in_vec.end(), 0);
-    std::vector<int> out_vec;
-    auto local_result = std::reduce(in_vec.cbegin(), in_vec.cend());
-    auto fut = pool.submit(
-        std::reduce<decltype(in_vec.cbegin())>,
-        in_vec.cbegin(),
-        in_vec.cend()
-    );
-    auto pool_result = fut.get();
-    
-    EXPECT_EQ(local_result, pool_result);
 }
 
 /* END TESTS */
