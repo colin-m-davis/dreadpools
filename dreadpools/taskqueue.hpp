@@ -11,19 +11,24 @@ template <typename T>
 class TaskQueue {
 public:
     [[nodiscard]] bool empty() {
-        std::lock_guard lock(_mutex);
+        std::lock_guard lk(_mutex);
         return _queue.empty();
+    }
+
+    [[nodiscard]] bool size() {
+        std::lock_guard lk(_mutex);
+        return _queue.size();
     }
 
     template <typename ... Args>
     void enqueue(Args&& ... args) {
-        std::lock_guard lock(_mutex);
+        std::lock_guard lk(_mutex);
         _queue.emplace(std::forward<T>(args)...);
     }
     
     // caller is responsible for providing out param
     bool dequeue(T& out) {
-        std::lock_guard lock(_mutex);
+        std::lock_guard lk(_mutex);
         if (_queue.empty()) {
             return false;
         }
