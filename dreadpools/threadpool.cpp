@@ -42,7 +42,7 @@ void ThreadWorker::operator()() {
         bool has_task = false;
         {
             std::unique_lock lock(_pool._cv_m);
-            while (_pool._tasks.empty() && !_stop_token.stop_requested()) {
+            while (!_stop_token.stop_requested() && _pool._tasks.empty()) {
                 // unlock mutex and add itself to list of waiters
                 _pool._cv.wait(lock);
             }
