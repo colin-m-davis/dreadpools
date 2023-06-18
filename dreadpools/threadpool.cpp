@@ -14,7 +14,7 @@ void ThreadPool::join() {
     fut.get();
     // all tasks that were in the queue when join() was called have been picked up by a thread
     {
-        std::unique_lock lock(_cv_m);
+        std::unique_lock lk(_cv_m);
         _stop_source.request_stop();
         _cv.notify_all();
     }
@@ -27,6 +27,7 @@ void ThreadPool::join() {
 }
 
 ThreadPool::~ThreadPool() {
+    std::unique_lock lk(_cv_m);
     _stop_source.request_stop();
     _cv.notify_all();
 }
@@ -41,10 +42,10 @@ void ThreadWorker::operator()() {
         std::function<void()> task;
         bool has_task = false;
         {
-            std::unique_lock lock(_pool._cv_m);
+            std::unique_lock lk(_pool._cv_m);
             while (!_stop_token.stop_requested() && _pool._tasks.empty()) {
                 // unlock mutex and add itself to list of waiters
-                _pool._cv.wait(lock);
+                _pool._cv.wait(lk);
             }
             has_task = _pool._tasks.dequeue(task);
         }
