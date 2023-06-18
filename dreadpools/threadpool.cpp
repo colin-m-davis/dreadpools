@@ -32,6 +32,7 @@ ThreadPool::~ThreadPool() {
     _cv.notify_all();
 }
 
+
 ThreadWorker::ThreadWorker(ThreadPool& p) :
     _pool(p),
     _stop_token(p._stop_source.get_token())
