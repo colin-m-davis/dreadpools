@@ -61,7 +61,7 @@ private:
 class ThreadWorker {
 public:
     explicit ThreadWorker(ThreadPool& p);
-    void operator()();
+    void operator()() const;
 
 private:
     ThreadPool& _pool;

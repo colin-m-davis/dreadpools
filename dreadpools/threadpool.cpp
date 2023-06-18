@@ -38,7 +38,7 @@ ThreadWorker::ThreadWorker(ThreadPool& p) :
     _stop_token(p._stop_source.get_token())
 {}
 
-void ThreadWorker::operator()() {
+void ThreadWorker::operator()() const {
     while (!_stop_token.stop_requested()) {
         std::function<void()> task;
         bool has_task = false;
