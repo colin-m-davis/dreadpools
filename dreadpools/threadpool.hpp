@@ -31,11 +31,11 @@ public:
     void start();
     void join();
 
-    template <typename F, typename... Args>
-    auto submit(F&& f, Args&&... args) -> std::future<decltype(f(args...))> {
-        typedef decltype(f(args...)) rt;
-        std::function<rt()> func = std::bind(std::forward<F>(f), std::forward<Args>(args)...);
-        auto task_ptr = std::make_shared<std::packaged_task<rt()>>(func);
+    template <typename Callable, typename... Args>
+    std::future<std::invoke_result_t<Callable, Args...>> submit(Callable&& f, Args&&... args) {
+        typedef std::invoke_result_t<Callable, Args...> return_type;
+        std::function<return_type()> func = std::bind(std::forward<Callable>(f), std::forward<Args>(args)...);
+        auto task_ptr = std::make_shared<std::packaged_task<return_type()>>(func);
 
         std::function<void()> wrapper_func = [task_ptr]() {
             (*task_ptr)();
