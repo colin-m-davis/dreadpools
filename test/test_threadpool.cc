@@ -1,14 +1,16 @@
 #include "dreadpools/threadpool.hpp"
 
+#include <functional>
 #include <string>
 #include <vector>
 #include <numeric>
+#include <algorithm>
 
 #include <gtest/gtest.h>
 
+
 namespace dreadpools {
 namespace {
-
 
 /* BEGIN HELPER FUNCTIONS */
 
@@ -26,7 +28,7 @@ T identity(T arg) {
 
 /* BEGIN TESTS */
 
-TEST(HelloTest, DefaultCtr) {
+TEST(TestPool, DefaultCtr) {
     dreadpools::ThreadPool pool{};
     pool.start();
 
@@ -37,21 +39,33 @@ TEST(HelloTest, DefaultCtr) {
     EXPECT_EQ(in_string, out_string);
 }
 
-TEST(HelloTest, Lambda) {
+TEST(TestPool, Lambda) {
     dreadpools::ThreadPool pool(4);
     pool.start();
 
-    auto expected = 2;
     auto fut = pool.submit(
         [](const int a, const int b) {return std::max(a, b); },
         1, 2
     );
+    auto expected = 2;
     auto result = fut.get();
     
     EXPECT_EQ(expected, result);
 }
 
-TEST(HelloTest, Reduce) {
+TEST(TestPool, StdFunction) {
+    dreadpools::ThreadPool pool(4);
+    pool.start();
+
+    std::function<int(int)> f_i = identity<int>;
+    auto fut = pool.submit(f_i, 4);
+    int expected = 4;
+    int result = fut.get();
+
+    EXPECT_EQ(expected, result);
+}
+
+TEST(TestPool, Reduce) {
     dreadpools::ThreadPool pool(4);
     pool.start();
 
@@ -69,7 +83,7 @@ TEST(HelloTest, Reduce) {
     EXPECT_EQ(expected, result);
 }
 
-TEST(HelloTest, Overload) {
+TEST(TestPool, Overload) {
     dreadpools::ThreadPool pool(4);
     pool.start();
 
