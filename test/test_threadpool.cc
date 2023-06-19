@@ -44,7 +44,7 @@ TEST(TestPool, Lambda) {
     pool.start();
 
     auto fut = pool.submit(
-        [](const int a, const int b) {return std::max(a, b); },
+        [](const int a, const int b) { return std::max(a, b); },
         1, 2
     );
     auto expected = 2;
