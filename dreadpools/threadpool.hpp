@@ -1,71 +1,70 @@
 #pragma once
 
-#include <queue>
-#include <mutex>
-#include <condition_variable>
-#include <memory>
-#include <functional>
-#include <cstddef>
-#include <thread>
-#include <vector>
-#include <iostream>
-#include <stop_token>
-#include <future>
-#include <type_traits>
-#include <algorithm>
 #include "taskqueue.hpp"
-
+#include <algorithm>
+#include <condition_variable>
+#include <cstddef>
+#include <functional>
+#include <future>
+#include <iostream>
+#include <memory>
+#include <mutex>
+#include <queue>
+#include <stop_token>
+#include <thread>
+#include <type_traits>
+#include <vector>
 
 namespace dreadpools {
 
 class ThreadPool {
 public:
-    explicit ThreadPool(
-        // std::thread::hardware_concurrency can return 0
-        const unsigned int count_threads = std::max(2u, std::thread::hardware_concurrency()) - 1u
-    ) noexcept : threads(count_threads) {};
+  explicit ThreadPool(
+      // std::thread::hardware_concurrency can return 0
+      const unsigned int count_threads =
+          std::max(2u, std::thread::hardware_concurrency()) - 1u) noexcept
+      : threads(count_threads){};
 
-    ThreadPool(const ThreadPool&) = delete;
-    ThreadPool& operator=(const ThreadPool&) = delete;
+  ThreadPool(const ThreadPool &) = delete;
+  ThreadPool &operator=(const ThreadPool &) = delete;
 
-    void start();
-    void join();
+  void start();
+  void join();
 
-    template <typename Callable, typename... Args>
-    std::future<std::invoke_result_t<Callable, Args...>> submit(Callable&& f, Args&&... args) {
-        typedef std::invoke_result_t<Callable, Args...> return_type;
-        std::function<return_type()> func = std::bind(std::forward<Callable>(f), std::forward<Args>(args)...);
-        auto task_ptr = std::make_shared<std::packaged_task<return_type()>>(func);
+  template <typename Callable, typename... Args>
+  std::future<std::invoke_result_t<Callable, Args...>> submit(Callable &&f,
+                                                              Args &&...args) {
+    typedef std::invoke_result_t<Callable, Args...> return_type;
+    std::function<return_type()> func =
+        std::bind(std::forward<Callable>(f), std::forward<Args>(args)...);
+    auto task_ptr = std::make_shared<std::packaged_task<return_type()>>(func);
 
-        std::function<void()> wrapper_func = [task_ptr]() {
-            (*task_ptr)();
-        };
+    std::function<void()> wrapper_func = [task_ptr]() { (*task_ptr)(); };
 
-        _tasks.enqueue(wrapper_func);
-        _cv.notify_one();
-        return task_ptr->get_future();
-    }
+    _tasks.enqueue(wrapper_func);
+    _cv.notify_one();
+    return task_ptr->get_future();
+  }
 
-    ~ThreadPool();
+  ~ThreadPool();
 
 private:
-    std::vector<std::jthread> threads;
-    std::condition_variable _cv{};
-    std::mutex _cv_m{};
-    TaskQueue<std::function<void()>> _tasks{};
-    std::stop_source _stop_source;
-    friend class ThreadWorker;
+  std::vector<std::jthread> threads;
+  std::condition_variable _cv{};
+  std::mutex _cv_m{};
+  TaskQueue<std::function<void()>> _tasks{};
+  std::stop_source _stop_source;
+  friend class ThreadWorker;
 };
-
 
 class ThreadWorker {
 public:
-    explicit ThreadWorker(ThreadPool& p);
-    void operator()() const;
+  explicit ThreadWorker(ThreadPool &p);
+  void operator()() const;
 
 private:
-    ThreadPool& _pool;
-    std::stop_token _stop_token;
+  ThreadPool &_pool;
+  std::stop_token _stop_token;
 };
 
-}
+} // namespace dreadpools

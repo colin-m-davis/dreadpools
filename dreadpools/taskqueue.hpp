@@ -1,45 +1,42 @@
 #pragma once
 
-#include <queue>
 #include <mutex>
+#include <queue>
 #include <utility>
-
 
 namespace dreadpools {
 
-template <typename T>
-class TaskQueue {
+template <typename T> class TaskQueue {
 public:
-    [[nodiscard]] bool empty() {
-        std::lock_guard lk(_mutex);
-        return _queue.empty();
-    }
+  [[nodiscard]] bool empty() {
+    std::lock_guard lk(_mutex);
+    return _queue.empty();
+  }
 
-    [[nodiscard]] bool size() {
-        std::lock_guard lk(_mutex);
-        return _queue.size();
-    }
+  [[nodiscard]] bool size() {
+    std::lock_guard lk(_mutex);
+    return _queue.size();
+  }
 
-    template <typename... Args>
-    void enqueue(Args&&... args) {
-        std::lock_guard lk(_mutex);
-        _queue.emplace(std::forward<T>(args)...);
+  template <typename... Args> void enqueue(Args &&...args) {
+    std::lock_guard lk(_mutex);
+    _queue.emplace(std::forward<T>(args)...);
+  }
+
+  // caller is responsible for providing out param
+  bool dequeue(T &out) {
+    std::lock_guard lk(_mutex);
+    if (_queue.empty()) {
+      return false;
     }
-    
-    // caller is responsible for providing out param
-    bool dequeue(T& out) {
-        std::lock_guard lk(_mutex);
-        if (_queue.empty()) {
-            return false;
-        }
-        out = std::move(_queue.front());
-        _queue.pop();
-        return true;
-    }
+    out = std::move(_queue.front());
+    _queue.pop();
+    return true;
+  }
 
 private:
-    std::queue<T> _queue{};
-    std::mutex _mutex{};
+  std::queue<T> _queue{};
+  std::mutex _mutex{};
 };
 
-}
+} // namespace dreadpools
