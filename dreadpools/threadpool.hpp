@@ -34,14 +34,12 @@ public:
   template <typename Callable, typename... Args>
   std::future<std::invoke_result_t<Callable, Args...>> submit(Callable &&f,
                                                               Args &&...args) {
-    typedef std::invoke_result_t<Callable, Args...> return_type;
+    using return_type = std::invoke_result_t<Callable, Args...>;
     std::function<return_type()> func =
         std::bind(std::forward<Callable>(f), std::forward<Args>(args)...);
     auto task_ptr = std::make_shared<std::packaged_task<return_type()>>(func);
 
-    std::function<void()> wrapper_func = [task_ptr]() { (*task_ptr)(); };
-
-    _tasks.enqueue(wrapper_func);
+    _tasks.enqueue([task_ptr]() { (*task_ptr)(); });
     _cv.notify_one();
     return task_ptr->get_future();
   }
