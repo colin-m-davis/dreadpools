@@ -23,7 +23,7 @@ public:
     _queue.emplace(std::forward<T>(args)...);
   }
 
-  // caller is responsible for providing out param
+  // caller is responsible for providing out param to achieve thread-safety
   bool dequeue(T &out) {
     std::lock_guard lk(_mutex);
     if (_queue.empty()) {
