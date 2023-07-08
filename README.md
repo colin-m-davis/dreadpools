@@ -17,5 +17,5 @@ Waits for the workers to complete all tasks in the queue before joining all the 
 `ThreadPool::submit(Callable &&f, Args &&...args)`
 
 Submits a new task `f` to the threadpool to be called with `args`. Returns a `std::future` to the result of calling `f` with `args`.
-NOTE: You may need to wrap a template function in a lambda, since there are issues with using C++17's CTAD here.
+NOTE: When submitting a function template to a threadpool, you need to specify the template arguments or wrap the function in a lambda to avoid compiler errors, since there are issues with using C++17's CTAD here.
 
