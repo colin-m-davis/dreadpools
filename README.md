@@ -8,7 +8,7 @@ Create a new threadpool with the specified number of threads. Tries to select a 
 
 `ThreadPool::start()`
 
-Activates the worker threads. The behavior of calling `submit` before starting a threadpool is undefined.
+Activates the worker threads. The behavior of a program that calls `submit` before starting a threadpool is undefined.
 
 `ThreadPool::join()`
 
