@@ -8,7 +8,7 @@ Create a new threadpool with the specified number of threads. Tries to select a 
 
 `ThreadPool::start() -> void`
 
-Activates the worker threads. The behavior of a program that calls `submit` before starting a threadpool is undefined.
+Activates the worker threads. You must start a threadpool before submitting a task to it.
 
 `ThreadPool::join() -> void`
 
@@ -18,4 +18,3 @@ Waits for the workers to complete all tasks in the queue before joining all the 
 
 Submits a new task `f` to the threadpool to be called with `args`. Returns a `std::future` to the result of calling `f` with `args`.
 NOTE: When submitting a function template to a threadpool, you need to specify the template arguments or wrap the function in a lambda to avoid compiler errors, since there are issues with using C++17's CTAD here.
-
